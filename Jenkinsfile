@@ -12,5 +12,10 @@ pipeline {
                 
             }
         }
+        stage{'codereview'} {
+            steps {
+                sh 'mvn clean package sonar:sonar'
+            }
+        }
     }
 }
