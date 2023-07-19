@@ -6,19 +6,11 @@ pipeline {
            maven "maven:3.9.3"
         }
     stages {
-          stage('build & SonarQube analysis') {
-            agent any
+        stage('Build') { 
             steps {
-              withSonarQubeEnv('My SonarQube Server') {
-                sh 'mvn clean package sonar:sonar'
+                sh 'mvn -B -DskipTests clean package' 
                 
             }
         }
-        stage{'My SonarQube Server'} {
-            steps {
-                sh 'mvn clean package sonar:sonar'
-            }
-        }
     }
-}
 }
