@@ -12,7 +12,7 @@ pipeline {
                 
             }
         }
-        stage{'codereview'} {
+        stage{'My SonarQube Server'} {
             steps {
                 sh 'mvn clean package sonar:sonar'
             }
