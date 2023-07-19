@@ -6,9 +6,11 @@ pipeline {
            maven "maven:3.9.3"
         }
     stages {
-        stage('Build') { 
+          stage("build & SonarQube analysis") {
+            agent any
             steps {
-                sh 'mvn -B -DskipTests clean package' 
+              withSonarQubeEnv('My SonarQube Server') {
+                sh 'mvn clean package sonar:sonar'
                 
             }
         }
