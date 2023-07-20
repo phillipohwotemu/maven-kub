@@ -1,5 +1,6 @@
 
 
+
 pipeline {
     agent any
     tools {
@@ -10,13 +11,6 @@ pipeline {
             steps {
                 sh 'mvn -B -DskipTests clean package' 
                 
-            }
-        }
-        stage('code review') {
-            steps {
-                withSonarQubeEnv('sonar-sever-8.9.2'){
-                     sh 'mvn clean package sonar:sonar'
-                }
             }
         }
         stage('code review') {
