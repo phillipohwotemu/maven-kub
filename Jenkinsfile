@@ -20,7 +20,9 @@ pipeline {
             }
         }
         stage('upload build artifact') {
-            nexusArtifactUploader artifacts: [[artifactId: 'maven-shade-plugin', classifier: '', file: 'target/maven-shade-plugin.war', type: 'war']], credentialsId: 'Nexus-credentials', groupId: 'in.kloud45', nexusUrl: '54.145.126.153:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'kloud45-snapshot-repository', version: '1.0-snapshot'
+            steps {
+                nexusArtifactUploader artifacts: [[artifactId: 'maven-shade-plugin', classifier: '', file: 'target/maven-shade-plugin.war', type: 'war']], credentialsId: 'Nexus-credentials', groupId: 'in.kloud45', nexusUrl: '54.145.126.153:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'kloud45-snapshot-repository', version: '1.0-snapshot'
+            }
         }
     }
 }
