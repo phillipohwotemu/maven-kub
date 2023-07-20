@@ -19,9 +19,10 @@ pipeline {
                 }
             }
         }
-        stage('upload build artifact') {
+        stage('uploade artifact') {
             steps {
                 nexusArtifactUploader artifacts: [[artifactId: 'productcatalogue', classifier: '', file: 'target/productcatalogue.war', type: 'war']], credentialsId: 'Nexus-credentials', groupId: 'in.kloud45', nexusUrl: '54.145.126.153:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'kloud45-snapshot-repository', version: '0.0.1-SNAPSHOT'
+            }
         }
     }
 }
