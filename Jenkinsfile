@@ -26,7 +26,7 @@ pipeline {
 
           nexusArtifactUploader {
 
-            nexusVersion('NEXUS3')
+            NEXUS_VERSION = "nexus3"
 
             protocol('http')
 
