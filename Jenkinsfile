@@ -26,7 +26,7 @@ pipeline {
 
           nexusArtifactUploader {
 
-            nexusVersion('nexus2')
+            nexusVersion('NEXUS3')
 
             protocol('http')
 
@@ -34,7 +34,7 @@ pipeline {
 
             groupId('sp.sd')
 
-            version(' 3.55.0')
+            version('0.0.1-SNAPSHOT')
 
             repository('NexusArtifactUploader')
 
