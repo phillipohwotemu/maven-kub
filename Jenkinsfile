@@ -20,58 +20,10 @@ pipeline {
                 }
             }
         }
-         stage('NexusArtifactUploaderJob') {
-
-        steps {
-
-          nexusArtifactUploader {
-
-            NEXUS_VERSION = "nexus2"
-
-            protocol('http')
-
-            nexusUrl('http://54.145.126.153:8081/')
-
-            groupId('sp.sd')
-
-            version('0.0.1-SNAPSHOT')
-
-            repository('NexusArtifactUploader')
-
-            credentialsId('Nexus-credentials')
-
-            artifact {
-
-                artifactId('oductcatalogue')
-
-                type('jar')
-
-                classifier('debug')
-
-                file('oductcatalogue.jar')
-
+        stage ('uplaod artifact') {
+            steps {
+                nexusArtifactUploader artifacts: [[artifactId: 'productcatalogue', classifier: '', file: 'target/productcatalogue.jar', type: 'jar']], credentialsId: 'Nexus-credentials', groupId: 'kloud45', nexusUrl: 'http://54.145.126.153:8081/', nexusVersion: 'nexus2', protocol: 'http', repository: 'kloud45-snapshot-repository', version: '0.0.1-SNAPSHOT'
             }
-
-            artifact {
-
-                artifactId('oductcatalogue')
-
-                type('hpi')
-
-                classifier('debug')
-
-                file('oductcatalogue.hpi')
-
-            }
-
-          }
-
         }
-
-    }
-
-
-
-
     }
 }
