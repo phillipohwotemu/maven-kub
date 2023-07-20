@@ -1,64 +1,22 @@
+
+
+
 pipeline {
-    agent {
-        label "master"
-    }
+    agent any
     tools {
-        maven "Maven"
-    }
-    environment {
-        NEXUS_VERSION = "nexus3"
-        NEXUS_PROTOCOL = "http"
-        NEXUS_URL = "http://54.145.126.153:8081"
-        NEXUS_REPOSITORY = "kloud45-snapshot-repository"
-        NEXUS_CREDENTIAL_ID = "Nexus-credentials"
-    }
+           maven "maven:3.9.3"
+        }
     stages {
-        stage("Clone code from VCS") {
+        stage('Build') { 
             steps {
-                script {
-                    git 'https://github.com/phillipohwotemu/maven-kub.git';
-                }
+                sh 'mvn -B -DskipTests clean package' 
+                
             }
         }
-        stage("Maven Build") {
+        stage('code review') {
             steps {
-                script {
-                    sh "mvn package -DskipTests=true"
-                }
-            }
-        }
-        stage("Publish to Nexus Repository Manager") {
-            steps {
-                script {
-                    pom = readMavenPom file: "pom.xml";
-                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
-                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
-                    artifactPath = filesByGlob[0].path;
-                    artifactExists = fileExists artifactPath;
-                    if(artifactExists) {
-                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}";
-                        nexusArtifactUploader(
-                            nexusVersion: NEXUS_VERSION,
-                            protocol: NEXUS_PROTOCOL,
-                            nexusUrl: NEXUS_URL,
-                            groupId: pom.groupId,
-                            version: pom.version,
-                            repository: NEXUS_REPOSITORY,
-                            credentialsId: NEXUS_CREDENTIAL_ID,
-                            artifacts: [
-                                [artifactId: pom.artifactId,
-                                classifier: '',
-                                file: artifactPath,
-                                type: pom.packaging],
-                                [artifactId: pom.artifactId,
-                                classifier: '',
-                                file: "pom.xml",
-                                type: "pom"]
-                            ]
-                        );
-                    } else {
-                        error "*** File: ${artifactPath}, could not be found";
-                    }
+                withSonarQubeEnv('sonar-sever-8.9.2'){
+                     sh 'mvn clean package sonar:sonar'
                 }
             }
         }
