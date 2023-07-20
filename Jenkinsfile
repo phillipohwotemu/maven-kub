@@ -1,28 +1,65 @@
-
-
-
 pipeline {
-    agent any
+    agent {
+        label "master"
+    }
     tools {
-           maven "maven:3.9.3"
-        }
+        maven "Maven"
+    }
+    environment {
+        NEXUS_VERSION = "nexus3"
+        NEXUS_PROTOCOL = "http"
+        NEXUS_URL = "http://54.145.126.153:8081"
+        NEXUS_REPOSITORY = "kloud45-snapshot-repository"
+        NEXUS_CREDENTIAL_ID = "Nexus-credentials"
+    }
     stages {
-        stage('Build') { 
+        stage("Clone code from VCS") {
             steps {
-                sh 'mvn -B -DskipTests clean package' 
-                
-            }
-        }
-        stage('code review') {
-            steps {
-                withSonarQubeEnv('sonar-sever-8.9.2'){
-                     sh 'mvn clean package sonar:sonar'
+                script {
+                    git 'https://github.com/phillipohwotemu/maven-kub.git';
                 }
             }
         }
-        stage('upload artifact') {
+        stage("Maven Build") {
             steps {
-                nexusArtifactUploader artifacts: [[artifactId: 'productcatalogue', classifier: '', file: 'productcatalogue', type: 'jar']], credentialsId: 'Nexus-credentials', groupId: 'in.kloud45', nexusUrl: '54.145.126.153:8081', nexusVersion: 'nexus2', protocol: 'http', repository: 'kloud45-snapshot-repository', version: '0.0.1-SNAPSHOT'
+                script {
+                    sh "mvn package -DskipTests=true"
+                }
+            }
+        }
+        stage("Publish to Nexus Repository Manager") {
+            steps {
+                script {
+                    pom = readMavenPom file: "pom.xml";
+                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
+                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
+                    artifactPath = filesByGlob[0].path;
+                    artifactExists = fileExists artifactPath;
+                    if(artifactExists) {
+                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}";
+                        nexusArtifactUploader(
+                            nexusVersion: NEXUS_VERSION,
+                            protocol: NEXUS_PROTOCOL,
+                            nexusUrl: NEXUS_URL,
+                            groupId: pom.groupId,
+                            version: pom.version,
+                            repository: NEXUS_REPOSITORY,
+                            credentialsId: NEXUS_CREDENTIAL_ID,
+                            artifacts: [
+                                [artifactId: pom.artifactId,
+                                classifier: '',
+                                file: artifactPath,
+                                type: pom.packaging],
+                                [artifactId: pom.artifactId,
+                                classifier: '',
+                                file: "pom.xml",
+                                type: "pom"]
+                            ]
+                        );
+                    } else {
+                        error "*** File: ${artifactPath}, could not be found";
+                    }
+                }
             }
         }
     }
